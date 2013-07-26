@@ -29,12 +29,8 @@ def getCorrectedTime():
 
 
 def getTimeDiff():
-    #response = urllib2.urlopen('http://api.timezonedb.com/?zone=Europe/Vienna&key=SJ1QUOEAUM26&format=json')
     response = urllib2.urlopen('http://wwp.greenwichmeantime.com/time/scripts/clock-8/x.php')
     content = response.read()
-    #jsoData = json.loads(str(content))
-    #newTime = jsoData['timestamp']
-    #print content
     newTime = int(float(content)) / 1000
     curTime = time.mktime(getCurrentTime().timetuple())
     diffTime = (newTime - int(curTime)) / 1000
@@ -48,6 +44,11 @@ def getTimeDiff():
 def defineTimeDiff():
     global timeDiff
     timeDiff = getTimeDiff()
+
+
+def createFolder(name):
+    if not os.path.exists(name):
+        os.makedirs(name)
 
 
 #
@@ -119,12 +120,9 @@ class DataStore:
         self.folder = folder
         self.datafolder = folder + os.sep + 'data'
         self.schedulefolder = folder + os.sep + 'schedule'
-        if not os.path.exists(self.folder):
-            os.makedirs(self.folder)
-        if not os.path.exists(self.datafolder):
-            os.makedirs(self.datafolder)
-        if not os.path.exists(self.schedulefolder):
-            os.makedirs(self.schedulefolder)
+        createFolder(self.folder)
+        createFolder(self.datafolder)
+        createFolder(self.schedulefolder)
 
     def addData(self, data):
         print 'add data ...'
@@ -166,6 +164,11 @@ class DataStore:
         fileName = self.schedulefolder + os.sep + 'schedule_' + time.replace(':', '-')
         return os.path.exists(fileName)
 
+    def getManuelSchedule(self):
+        fileName = self.folder + os.sep + 'manuelSchedule'
+        if os.path.exists(fileName):
+            return fileName
+
 
 #
 #  class: Schedule
@@ -179,12 +182,20 @@ class Schedule:
 
     def do(self):
         curTime = getCorrectedTime()
+        # execute time schedule
         if curTime.strftime('%H:%M') in config.schedules:
-            s = curTime.strftime('%Y-%m-%d_%H-%M')
-            if not self.store.existSchedule(s):
-                logging.info('Schedule ' + s + ' is active')
-                self.com.write('pumpOn')
-                store.writeSchedule(s)
+            self.processSchedule(curTime.strftime('%Y-%m-%d_%H-%M'))
+        # execute manuel schedule
+        manuelSchedule = self.store.getManuelSchedule()
+        if not manuelSchedule is None:
+            os.remove(manuelSchedule)
+            self.processSchedule(curTime.strftime('%Y-%m-%d_%H-%M'))
+
+    def processSchedule(self, name):
+        if not self.store.existSchedule(name):
+            logging.info('Schedule ' + name + ' is active')
+            self.com.write('Pump=1')
+            store.writeSchedule(name)
 
 
 def run():
@@ -194,9 +205,11 @@ def run():
     # load configuration
     outputFolder = config.outputFolder
     device = config.device
+    createFolder(outputFolder)
 
     #confgure logging
     logfile = outputFolder + os.sep + 'watcher.log'
+    print 'Logfile: ' + logfile
     logging.basicConfig(filename=logfile, level=logging.DEBUG, format='%(levelname)s-%(asctime)s-%(name)s - %(message)s')
 
     logging.info('Output-Folder: ' + outputFolder)
