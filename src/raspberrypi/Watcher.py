@@ -216,7 +216,8 @@ def run():
     logging.info('Device       : ' + device)
 
     # Startup
-    com = Communicator(device)
+    #com = Communicator(device)
+    com = SerialCommunicator(device)
     store = DataStore(outputFolder)
     schedule = Schedule(store, com)
 
