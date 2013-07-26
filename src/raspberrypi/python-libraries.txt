@@ -1,0 +1,14 @@
+Python Library Dependencies:
+--------------------------------------
+
+pyserial:
+  This package is used to communicate with an
+  arduino board over an serial wire
+
+  url: http://pyserial.sourceforge.net/
+
+python-daemon:
+  This package is used to run the
+  Watcher process as a linux daemon
+
+  url: https://pypi.python.org/pypi/python-daemon/
