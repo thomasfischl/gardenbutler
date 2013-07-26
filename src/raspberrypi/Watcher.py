@@ -96,7 +96,7 @@ class SerialCommunicator:
         for value in line.split(';'):
             if '=' in value:
                 data = value.split('=')
-                result[data[0]] = data[1]
+                result[data[0].strip(' \n\r')] = data[1].strip(' \n\r')
         return result
 
     def get_device(self):
@@ -130,6 +130,7 @@ class DataStore:
         if self.currtime != time:
             if self.currtime != '':
                 self.writeData()
+                self.clearData()
             self.currtime = time
 
         for key, value in data.iteritems():
@@ -149,6 +150,7 @@ class DataStore:
 
     def clearData(self):
         self.currtime = self.getCurrTime()
+        self.data = {}
 
     def getCurrTime(self):
         return getCorrectedTime().strftime("%Y-%m-%d_%H-%M") + '-' + str(int(getCorrectedTime().second / 10))
