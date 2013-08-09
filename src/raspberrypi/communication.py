@@ -13,7 +13,7 @@ import time
 import datetime
 import serial
 import urllib2
-import WatcherConfig as config
+import communication-config as config
 import logging
 
 
