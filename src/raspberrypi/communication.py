@@ -13,7 +13,7 @@ import time
 import datetime
 import serial
 import urllib2
-import communication-config as config
+import communication_config as config
 import logging
 
 
