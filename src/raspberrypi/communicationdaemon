@@ -2,24 +2,24 @@
 #
 # Author: Thomas Fischl
 #
-# /etc/init.d/watcherdaemon
+# /etc/init.d/communicationdaemon
 #
 ### BEGIN INIT INFO
-# Provides: watcherdaemon
+# Provides: communicationdaemon
 # Required-Start:
 # Should-Start:
 # Required-Stop:
 # Should-Stop:
 # Default-Start:  3 5
 # Default-Stop:   0 1 2 6
-# Short-Description: Watcher Daemon process
-# Description:    Runs up the watcher daemon process
+# Short-Description: Communication Daemon process
+# Description:    Runs up the communication daemon process
 ### END INIT INFO
 
 # Change the next 3 lines to suit where you install your script and what you want to call it
-DIR=/usr/share/watcher
+DIR=/usr/share/gardenbutler
 DAEMON=$DIR/service.py
-DAEMON_NAME=watcherdaemon
+DAEMON_NAME=communicationdaemon
  
 # This next line determines what user the script runs as.
 # Root generally not recommended but necessary if you are using the Raspberry Pi GPIO from Python.
