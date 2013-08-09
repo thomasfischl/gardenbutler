@@ -18,7 +18,7 @@
 
 # Change the next 3 lines to suit where you install your script and what you want to call it
 DIR=/usr/share/gardenbutler
-DAEMON=$DIR/service.py
+DAEMON=$DIR/communication-daemon.py
 DAEMON_NAME=communicationdaemon
  
 # This next line determines what user the script runs as.
