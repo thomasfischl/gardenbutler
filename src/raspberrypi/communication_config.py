@@ -2,7 +2,31 @@
 # This file is a configuration file for the
 # Watcher script.
 #
-schedules = ['17:23', '17:25', '17:26']
-#outputFolder = 'C:\\temp\\watcher'
-outputFolder = '/home/pi/watcher'
-device = '/dev/ttyACM0'
+
+_schedules = {}
+_outputFolder = {}
+_device = {}
+
+environment = 'bigmama'
+#environment = 'pi'
+
+_schedules['bigmama'] = ['17:23', '17:25', '17:26']
+_schedules['pi'] = ['17:23', '17:25', '17:26']
+
+_outputFolder['bigmama'] = 'C:\\temp\\watcher'
+_outputFolder['pi'] = '/home/pi/watcher'
+
+_device['bigmama'] = 'COM3'
+_device['pi'] = '/dev/ttyACM0'
+
+
+def getSchedules():
+    return _schedules[environment]
+
+
+def getOutputFolder():
+    return _outputFolder[environment]
+
+
+def getDevice():
+    return _device[environment]

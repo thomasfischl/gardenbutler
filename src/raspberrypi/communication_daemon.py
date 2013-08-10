@@ -4,5 +4,6 @@
 # Watcher script
 #
 
-from communication.py import run
-run()
+import communication
+
+communication.run()

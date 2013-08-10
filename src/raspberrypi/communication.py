@@ -51,6 +51,17 @@ def createFolder(name):
         os.makedirs(name)
 
 
+def processSerialData(line):
+    result = {}
+    line = line.strip(' \n\r')
+    if line.startswith('[start]') and line.endswith('[end]'):
+        for value in line[7:-5].split(';'):
+            if '=' in value:
+                data = value.split('=')
+                result[data[0].strip(' \n\r')] = data[1].strip(' \n\r')
+    return result
+
+
 #
 #  class: Communicator
 #  This class communicates is a mock
@@ -63,12 +74,12 @@ class Communicator:
         self.device = device
 
     def read(self):
-        line = 'T1=1;T2=2;Pump=0'
-        result = {}
-        for value in line.split(';'):
-            if '=' in value:
-                data = value.split('=')
-                result[data[0]] = data[1]
+        line = '[start]T1=1;T2=2;Pump=0[end]'
+        result = processSerialData(line)
+
+        if len(result) == 0:
+            logging.info('Unknown data received: ' + line)
+
         return result
 
     def get_device(self):
@@ -92,11 +103,11 @@ class SerialCommunicator:
 
     def read(self):
         line = self.ser.readline()
-        result = {}
-        for value in line.split(';'):
-            if '=' in value:
-                data = value.split('=')
-                result[data[0].strip(' \n\r')] = data[1].strip(' \n\r')
+        result = processSerialData(line)
+
+        if len(result) == 0:
+            logging.info('Unknown data received: ' + line)
+
         return result
 
     def get_device(self):
@@ -120,9 +131,11 @@ class DataStore:
         self.folder = folder
         self.datafolder = folder + os.sep + 'data'
         self.schedulefolder = folder + os.sep + 'schedule'
+        self.actionfolder = folder + os.sep + 'actions'
         createFolder(self.folder)
         createFolder(self.datafolder)
         createFolder(self.schedulefolder)
+        createFolder(self.actionfolder)
 
     def addData(self, data):
         print 'add data ...'
@@ -146,7 +159,7 @@ class DataStore:
         logging.info('Write Data : ' + self.currtime + " to " + fileName)
 
         with open(fileName, 'w') as fileHandle:
-            fileHandle.write(json.dumps({'Name': self.currtime, 'Property': self.data}))
+            fileHandle.write(json.dumps({self.currtime: self.data}))
 
     def clearData(self):
         self.currtime = self.getCurrTime()
@@ -185,7 +198,7 @@ class Schedule:
     def do(self):
         curTime = getCorrectedTime()
         # execute time schedule
-        if curTime.strftime('%H:%M') in config.schedules:
+        if curTime.strftime('%H:%M') in config.getSchedules():
             self.processSchedule(curTime.strftime('%Y-%m-%d_%H-%M'))
         # execute manuel schedule
         manuelSchedule = self.store.getManuelSchedule()
@@ -205,8 +218,8 @@ def run():
     global store
 
     # load configuration
-    outputFolder = config.outputFolder
-    device = config.device
+    outputFolder = config.getOutputFolder()
+    device = config.getDevice()
     createFolder(outputFolder)
 
     #confgure logging
