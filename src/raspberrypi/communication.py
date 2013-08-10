@@ -125,13 +125,13 @@ class SerialCommunicator:
 #
 class DataStore:
     data = {}
-    currtime = ''
 
     def __init__(self, folder):
         self.folder = folder
         self.datafolder = folder + os.sep + 'data'
         self.schedulefolder = folder + os.sep + 'schedule'
         self.actionfolder = folder + os.sep + 'actions'
+        self.currtime = self.getCurrTime()
         createFolder(self.folder)
         createFolder(self.datafolder)
         createFolder(self.schedulefolder)
@@ -140,7 +140,7 @@ class DataStore:
     def addData(self, data):
         print 'add data ...'
         time = self.getCurrTime()
-        if self.currtime != time:
+        if self.currtime.strftime("%Y-%m-%d_%H-%M-%S") != time.strftime("%Y-%m-%d_%H-%M-%S"):
             if self.currtime != '':
                 self.writeData()
                 self.clearData()
@@ -155,18 +155,28 @@ class DataStore:
                 self.data[key] = value
 
     def writeData(self):
-        fileName = self.datafolder + os.sep + 'data_' + self.currtime + '.json'
-        logging.info('Write Data : ' + self.currtime + " to " + fileName)
+        fileName = self.datafolder + os.sep + 'data_' + self.currtime.strftime("%Y-%m-%d_%H") + '.json'
+        logging.info('Write Data : ' + str(self.currtime) + " to " + fileName)
 
+        data = {}
+        if os.path.exists(fileName):
+            with open(fileName, 'r') as fileHandle:
+                txt = fileHandle.read()
+                if len(txt) != 0:
+                    data = json.loads(txt)
+
+        data[self.currtime.strftime("%Y-%m-%d_%H-%M-%S")] = self.data
         with open(fileName, 'w') as fileHandle:
-            fileHandle.write(json.dumps({self.currtime: self.data}))
+            fileHandle.write(json.dumps(data))
 
     def clearData(self):
         self.currtime = self.getCurrTime()
         self.data = {}
 
     def getCurrTime(self):
-        return getCorrectedTime().strftime("%Y-%m-%d_%H-%M") + '-' + str(int(getCorrectedTime().second / 10))
+        time = getCurrentTime()
+        seconds = int(time.second / 10)
+        return time.replace(second=seconds*10, microsecond=0)
 
     def writeSchedule(self, time):
         fileName = self.schedulefolder + os.sep + 'schedule_' + time.replace(':', '-')
