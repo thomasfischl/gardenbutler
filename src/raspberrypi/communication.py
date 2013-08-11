@@ -85,8 +85,8 @@ class Communicator:
     def get_device(self):
         return self.device
 
-    def write(self, command):
-        print 'Write: ' + command
+    def writeAction(self, action):
+        print 'Write: action=' + action
 
 
 #
@@ -113,9 +113,9 @@ class SerialCommunicator:
     def get_device(self):
         return self.device
 
-    def write(self, command):
-        print 'Write: ' + command
-        self.ser.write(command)
+    def writeAction(self, action):
+        logging.info('Send action: action=' + action)
+        self.ser.write('action=' + action)
 
 
 #
@@ -130,7 +130,7 @@ class DataStore:
         self.folder = folder
         self.datafolder = folder + os.sep + 'data'
         self.schedulefolder = folder + os.sep + 'schedule'
-        self.actionfolder = folder + os.sep + 'actions'
+        self.actionfolder = folder + os.sep + 'action'
         self.currtime = self.getCurrTime()
         createFolder(self.folder)
         createFolder(self.datafolder)
@@ -189,10 +189,21 @@ class DataStore:
         fileName = self.schedulefolder + os.sep + 'schedule_' + time.replace(':', '-')
         return os.path.exists(fileName)
 
-    def getManuelSchedule(self):
-        fileName = self.folder + os.sep + 'manuelSchedule'
-        if os.path.exists(fileName):
-            return fileName
+    def getNextAction(self):
+        result = None
+        files = os.listdir(self.actionfolder)
+        if len(files) == 0:
+            return result
+
+        files.sort()
+        fileName = self.actionfolder + os.sep + files[0]
+        with open(fileName, 'r') as fileHandle:
+            action = fileHandle.readline()
+            if action.startswith('action='):
+                result = action[7:]
+        os.remove(fileName)
+
+        return result
 
 
 #
@@ -210,16 +221,15 @@ class Schedule:
         # execute time schedule
         if curTime.strftime('%H:%M') in config.getSchedules():
             self.processSchedule(curTime.strftime('%Y-%m-%d_%H-%M'))
-        # execute manuel schedule
-        manuelSchedule = self.store.getManuelSchedule()
-        if not manuelSchedule is None:
-            os.remove(manuelSchedule)
-            self.processSchedule(curTime.strftime('%Y-%m-%d_%H-%M'))
+        # execute manuel actions
+        action = self.store.getNextAction()
+        if not action is None:
+            self.com.writeAction(action)
 
     def processSchedule(self, name):
         if not self.store.existSchedule(name):
             logging.info('Schedule ' + name + ' is active')
-            self.com.write('Pump=1')
+            self.com.write('action=pump')
             store.writeSchedule(name)
 
 
