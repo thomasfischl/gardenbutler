@@ -68,6 +68,10 @@ def writeDataAsCsv(headers, rows, outputFile):
 
 
 def avg(val1, val2):
+    if val1 == '':
+        return val2
+    if val2 == '':
+        return val1
     return round((float(val1) + float(val2))/2, 2)
 
 
@@ -77,9 +81,9 @@ def aggregateRows(dataHeader, dataRows, dataAggrRows):
     currTime = ''
     merge = False
 	
-	for row in dataRows:
-        for idx in range(len(dataHeader) - len(row):
-        	row.append('0')
+    for row in dataRows:
+        for idx in range(len(dataHeader) - len(row)):
+            row.append('0')
 	
     for row in dataRows:
         for idx in range(len(row)):
@@ -102,7 +106,9 @@ def aggregateRows(dataHeader, dataRows, dataAggrRows):
                     tmpRow[idx] = avg(tmpRow[idx], row[idx])
                 else:
                     tmpRow.append(row[idx])
-
+    dataAggrRows.append(tmpRow)
+    
+    
 if __name__ == "__main__":
     #
     #  Main
