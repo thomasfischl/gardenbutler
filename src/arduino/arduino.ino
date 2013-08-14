@@ -188,16 +188,19 @@ void serialReadData() {
     while(Serial.available() > 0){
       char c = Serial.read();
       line += c;
-    }
-    //check if pump should be started
-    Serial.println("Recived: " + line);
-
-    if( line == "action=pump"){
-      pumpStateFlag = ACTIVE_TIME;
-    }
-
-    if( line == "action=selftest"){
-      selfTestStateFlag = 10;
+    
+      //check if pump should be started
+      Serial.println("Recived: " + line);
+  
+      if( line == "action=pump"){
+        Serial.println("Activate Pump");
+        pumpStateFlag = ACTIVE_TIME;
+      }
+  
+      if( line == "action=selftest"){
+        Serial.println("Activate SelfTest");
+        selfTestStateFlag = 10;
+      }
     }
   }
 }
