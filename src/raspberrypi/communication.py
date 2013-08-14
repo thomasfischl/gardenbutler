@@ -230,7 +230,7 @@ class Schedule:
     def processSchedule(self, name):
         if not self.store.existSchedule(name):
             logging.info('Schedule ' + name + ' is active')
-            self.com.write('action=pump')
+            self.com.writeAction('action=pump')
             store.writeSchedule(name)
 
 
