@@ -96,7 +96,7 @@ def aggregateRows(dataHeader, dataRows, dataAggrRows):
                     merge = False
                 else:
                     merge = True
-            elif dataHeader[idx] == 'Pump' and dataHeader[idx] == 'SelfTest':
+            elif dataHeader[idx] == 'Pump' or dataHeader[idx] == 'SelfTest':
                 if merge:
                     tmpRow[idx] = max(tmpRow[idx], row[idx])
                 else:
