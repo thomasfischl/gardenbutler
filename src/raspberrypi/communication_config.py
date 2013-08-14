@@ -8,11 +8,11 @@ _schedules = {}
 _outputFolder = {}
 _device = {}
 
-environment = 'bigmama'
-#environment = 'pi'
+#environment = 'bigmama'
+environment = 'pi'
 
 _schedules['bigmama'] = ['17:23', '17:25', '17:26']
-_schedules['pi'] = ['17:23', '17:25', '17:26']
+_schedules['pi'] = ['10:01', '13:01', '15:01']
 
 _outputFolder['bigmama'] = 'C:\\temp\\watcher'
 _outputFolder['pi'] = '/home/pi/watcher'

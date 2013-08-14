@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+#
+
 import BaseHTTPServer
 import SimpleHTTPServer
 import communication_config as gconfig
