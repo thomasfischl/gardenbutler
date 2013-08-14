@@ -80,11 +80,11 @@ def aggregateRows(dataHeader, dataRows, dataAggrRows):
     tmpRow = []
     currTime = ''
     merge = False
-	
+
     for row in dataRows:
         for idx in range(len(dataHeader) - len(row)):
             row.append('0')
-	
+
     for row in dataRows:
         for idx in range(len(row)):
             if dataHeader[idx] == 'Time':

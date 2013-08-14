@@ -65,9 +65,29 @@ def writeScheduleHistory(resp):
     return resp
 
 
+def writeActionFile(command):
+    folder = gconfig.getActionFolder()
+    if not os.path.exists(folder):
+        os.mkdir(folder)
+    with open(gconfig.getActionFolder() + os.sep + '1', 'w') as fileHandle:
+        fileHandle.write(command)
+
 class RequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     def do_GET(self):
+        if self.path == '/favicon.ico':
+            return
+
+        if self.path == '/pump/russel':
+            writeActionFile('action=pump')
+            self.wfile.write('<html><head><meta HTTP-EQUIV="REFRESH" content="0; url=/" /></head>"')
+            return
+
+        if self.path == '/selftest/russel':
+            writeActionFile('action=selftest')
+            self.wfile.write('<html><head><meta HTTP-EQUIV="REFRESH" content="0; url=/" /></head>"')
+            return
+
         print 'Client: ' + self.client_address[0] + ' ' + self.path
 
         resp = ''
@@ -77,6 +97,9 @@ class RequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         resp = writeScheduleData(resp)
         resp = writeScheduleHistory(resp)
         resp = writeMeasureData(resp)
+
+        resp += '<h1><a href="/pump">Pump</a></h1>'
+        resp += '<h1><a href="/selftest">SelfTest</a></h1>'
 
         resp += '</body></html>'
         self.wfile.write(resp)

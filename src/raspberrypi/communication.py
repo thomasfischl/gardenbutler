@@ -226,6 +226,7 @@ class Schedule:
         action = self.store.getNextAction()
         if not action is None:
             self.com.writeAction(action)
+            store.writeSchedule(curTime.strftime('%Y-%m-%d_%H-%M'))
 
     def processSchedule(self, name):
         if not self.store.existSchedule(name):
