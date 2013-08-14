@@ -2,6 +2,7 @@
 # This file is a configuration file for the
 # Watcher script.
 #
+import os
 
 _schedules = {}
 _outputFolder = {}
@@ -26,6 +27,18 @@ def getSchedules():
 
 def getOutputFolder():
     return _outputFolder[environment]
+
+
+def getDataFolder(outputFolder=getOutputFolder()):
+    return outputFolder + os.sep + 'data'
+
+
+def getScheduleFolder(outputFolder=getOutputFolder()):
+    return outputFolder + os.sep + 'schedule'
+
+
+def getActionFolder(outputFolder=getOutputFolder()):
+    return outputFolder + os.sep + 'action'
 
 
 def getDevice():

@@ -15,6 +15,7 @@ import serial
 import urllib2
 import communication_config as config
 import logging
+import random
 
 
 #
@@ -74,7 +75,7 @@ class Communicator:
         self.device = device
 
     def read(self):
-        line = '[start]T1=1;T2=2;Pump=0[end]'
+        line = '[start]T1='+str(random.randint(10, 30))+';T2='+str(random.randint(10, 30))+';Pump='+str(random.randint(0, 1))+'[end]'
         result = processSerialData(line)
 
         if len(result) == 0:
@@ -128,9 +129,9 @@ class DataStore:
 
     def __init__(self, folder):
         self.folder = folder
-        self.datafolder = folder + os.sep + 'data'
-        self.schedulefolder = folder + os.sep + 'schedule'
-        self.actionfolder = folder + os.sep + 'action'
+        self.datafolder = config.getDataFolder(folder)
+        self.schedulefolder = config.getScheduleFolder(folder)
+        self.actionfolder = config.getActionFolder(folder)
         self.currtime = self.getCurrTime()
         createFolder(self.folder)
         createFolder(self.datafolder)
@@ -251,8 +252,8 @@ def run():
     logging.info('Device       : ' + device)
 
     # Startup
-    #com = Communicator(device)
-    com = SerialCommunicator(device)
+    com = Communicator(device)
+    #com = SerialCommunicator(device)
     store = DataStore(outputFolder)
     schedule = Schedule(store, com)
 
