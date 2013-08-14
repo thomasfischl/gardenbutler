@@ -17,7 +17,7 @@
 ### END INIT INFO
 
 # Change the next 3 lines to suit where you install your script and what you want to call it
-DIR=/usr/share/gardenbutler
+DIR=/home/pi/gardenbutler/src/raspberrypi
 DAEMON=$DIR/communication_daemon.py
 DAEMON_NAME=gdcommunication
  
