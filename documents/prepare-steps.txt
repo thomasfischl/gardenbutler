@@ -1,0 +1,10 @@
+#Configure temperature module
+sudo nano /etc/modules
+
+#Append two kernel modules
+w1-gpio
+w1-therm
+
+#After reboot, the temperature sensors are available
+cd /sys/bus/w1/devices/10-*
+cat w1_slave
