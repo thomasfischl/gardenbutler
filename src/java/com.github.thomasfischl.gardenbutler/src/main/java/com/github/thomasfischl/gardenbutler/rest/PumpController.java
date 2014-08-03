@@ -29,17 +29,22 @@ public class PumpController {
   @ResponseBody
   public HttpEntity<ResourceSupport> getSensorData() {
     ResourceSupport result = new ResourceSupport();
-    result.add(linkTo(methodOn(PumpController.class).activatePump(10)).withRel("activate"));
+    result.add(linkTo(methodOn(PumpController.class).execute("activate", 10)).withRel("activate"));
     result.add(linkTo(methodOn(PumpController.class).getHistroy()).withRel("history"));
     result.add(linkTo(methodOn(PumpController.class).getSchedules()).withRel("schedules"));
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
-  @RequestMapping(value = "/activate", method = RequestMethod.POST)
+  @RequestMapping(method = RequestMethod.POST)
   @ResponseBody
-  public HttpEntity<?> activatePump(@RequestParam long duration) {
-    System.out.println("Pump: " + duration);
-    storeService.queueActorAction(new ActorAction("pump", "activate", "10000"));
+  public HttpEntity<?> execute(@RequestParam String action, @RequestParam long duration) {
+    switch (action) {
+    case "activate":
+      storeService.queueActorAction(new ActorAction("pump", "activate", String.valueOf(duration)));
+      break;
+    default:
+      return new ResponseEntity<>("Invalid action parameter", HttpStatus.NOT_FOUND);
+    }
     return new ResponseEntity<>(HttpStatus.OK);
   }
 

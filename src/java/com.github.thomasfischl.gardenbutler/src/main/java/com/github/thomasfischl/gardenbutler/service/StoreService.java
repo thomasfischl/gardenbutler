@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
@@ -13,9 +14,10 @@ import org.mapdb.BTreeMap;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.HTreeMap;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.github.thomasfischl.gardenbutler.Configuration;
 import com.github.thomasfischl.gardenbutler.domain.ActorAction;
 import com.github.thomasfischl.gardenbutler.domain.SensorData;
 import com.google.common.collect.Maps;
@@ -23,18 +25,19 @@ import com.google.common.collect.Maps;
 @Service
 public class StoreService {
 
-  @Value("${database.file}")
-  private String databaseFilePath;
-
   private DB db;
 
   private HTreeMap<String, Double> currSensorData;
 
   private BlockingQueue<ActorAction> actorActionQueue;
 
+  @Autowired
+  private Configuration config;
+  
   @PostConstruct
   public void init() {
 
+    String databaseFilePath = config.getDatabaseFilePath();
     if (databaseFilePath == null) {
       databaseFilePath = "gardenbutler.db";
     }
@@ -43,7 +46,13 @@ public class StoreService {
 
     db = DBMaker.newFileDB(dbFile).closeOnJvmShutdown().make();
     currSensorData = db.createHashMap("curr-sensor-data").counterEnable().makeOrGet();
-    actorActionQueue = db.createQueue("actor-actions", ActorAction.getSerializer(), true);
+
+    if (db.exists("actor-actions")) {
+      actorActionQueue = db.getQueue("actor-actions");
+    } else {
+      actorActionQueue = db.createQueue("actor-actions", ActorAction.getSerializer(), true);
+    }
+
   }
 
   public List<SensorData> loadCurrentSensorData() {
@@ -83,7 +92,11 @@ public class StoreService {
   }
 
   public ActorAction nextActorAction() {
-    return actorActionQueue.poll();
+    try {
+      return actorActionQueue.poll(1, TimeUnit.SECONDS);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private String getMapName(String sensorName) {
