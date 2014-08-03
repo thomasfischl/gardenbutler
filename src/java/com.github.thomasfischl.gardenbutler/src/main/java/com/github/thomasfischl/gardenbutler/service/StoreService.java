@@ -33,7 +33,7 @@ public class StoreService {
 
   @Autowired
   private Configuration config;
-  
+
   @PostConstruct
   public void init() {
 
@@ -42,7 +42,9 @@ public class StoreService {
       databaseFilePath = "gardenbutler.db";
     }
     File dbFile = new File(databaseFilePath);
-    dbFile.getParentFile().mkdirs();
+    if (dbFile.getParentFile() != null) {
+      dbFile.getParentFile().mkdirs();
+    }
 
     db = DBMaker.newFileDB(dbFile).closeOnJvmShutdown().make();
     currSensorData = db.createHashMap("curr-sensor-data").counterEnable().makeOrGet();

@@ -1,16 +1,15 @@
 package com.github.thomasfischl.gardenbutler.service;
 
-import java.util.Random;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.github.thomasfischl.gardenbutler.Configuration;
 import com.github.thomasfischl.gardenbutler.domain.ActorAction;
+import com.github.thomasfischl.gardenbutler.microcontroller.PiMicorcontroller;
 
 @Service
-public class MicrocontrollerComService {
+public class MicrocontrollerService {
 
   @Autowired
   private StoreService storeService;
@@ -18,11 +17,8 @@ public class MicrocontrollerComService {
   @Autowired
   private Configuration config;
 
-  private Random rand;
-
-  public MicrocontrollerComService() {
-    rand = new Random();
-  }
+  @Autowired
+  private PiMicorcontroller microcontroller;
 
   // every 10 seconds
   @Scheduled(fixedRate = 10000)
@@ -31,8 +27,13 @@ public class MicrocontrollerComService {
 
     long time = System.currentTimeMillis();
 
+    microcontroller.readData();
+
     for (String sensorName : config.getSensorNameList()) {
-      storeService.storeSensorData(sensorName, 5 + rand.nextInt(20), time);
+      Double value = microcontroller.getSensorValue(sensorName);
+      if (value != null) {
+        storeService.storeSensorData(sensorName, value, time);
+      }
     }
     // TODO implement me
   }
@@ -50,5 +51,6 @@ public class MicrocontrollerComService {
     System.out.println("Execute action " + action.getAction() + " on actor " + action.getActorName() + " with parameter (" + action.getParam() + ")");
     // TODO implement me
 
+    microcontroller.test();
   }
 }
