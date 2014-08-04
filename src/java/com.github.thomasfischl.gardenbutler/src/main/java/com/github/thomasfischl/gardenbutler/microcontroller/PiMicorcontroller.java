@@ -21,8 +21,8 @@ import com.pi4j.io.gpio.RaspiPin;
 public class PiMicorcontroller {
 
   private GpioController gpio;
-  private GpioPinDigitalOutput ledTest;
   private GpioPinDigitalOutput relay1;
+  private GpioPinDigitalOutput relay2;
 
   private boolean initialized;
 
@@ -34,8 +34,8 @@ public class PiMicorcontroller {
       try {
         gpio = GpioFactory.getInstance();
 
-        ledTest = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_00, "Test Led", PinState.LOW);
-        relay1 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_02, "Relay1", PinState.LOW);
+        relay1 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_00, "Pump1", PinState.LOW);
+        relay2 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_02, "Pump2", PinState.LOW);
 
         initialized = true;
 
@@ -52,33 +52,28 @@ public class PiMicorcontroller {
   }
 
   public void test() {
-    ledTest.high();
-    relay1.high();
+  }
 
+  public void activatePump1(long duration) {
+    activatePump(relay1, duration);
+  }
+
+  public void activatePump2(long duration) {
+    activatePump(relay2, duration);
+  }
+
+  private void activatePump(GpioPinDigitalOutput gpio, long duration) {
+    gpio.high();
+    silentSleep(duration);
+    gpio.low();
+  }
+
+  private void silentSleep(long duration) {
     try {
-      Thread.sleep(2000);
+      Thread.sleep(duration);
     } catch (InterruptedException e) {
+      throw new RuntimeException(e);
     }
-
-    ledTest.low();
-    relay1.low();
-
-    try {
-      Thread.sleep(2000);
-    } catch (InterruptedException e) {
-    }
-
-    ledTest.high();
-    relay1.high();
-
-    try {
-      Thread.sleep(2000);
-    } catch (InterruptedException e) {
-    }
-
-    ledTest.low();
-    relay1.low();
-
   }
 
   public void readData() {
@@ -133,7 +128,7 @@ public class PiMicorcontroller {
 
       for (String line : lines) {
         if (line.contains("t=")) {
-          return Double.valueOf(line.substring(line.indexOf("t=") + 2)) /1000;
+          return Double.valueOf(line.substring(line.indexOf("t=") + 2)) / 1000;
         }
       }
     } catch (Exception e) {

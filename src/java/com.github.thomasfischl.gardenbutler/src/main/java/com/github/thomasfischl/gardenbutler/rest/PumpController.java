@@ -9,6 +9,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,18 +30,19 @@ public class PumpController {
   @ResponseBody
   public HttpEntity<ResourceSupport> getSensorData() {
     ResourceSupport result = new ResourceSupport();
-    result.add(linkTo(methodOn(PumpController.class).execute("activate", 10)).withRel("activate"));
+    result.add(linkTo(methodOn(PumpController.class).execute("1", "activate", 5000)).withRel("pump1-activate"));
+    result.add(linkTo(methodOn(PumpController.class).execute("2", "activate", 5000)).withRel("pump2-activate"));
     result.add(linkTo(methodOn(PumpController.class).getHistroy()).withRel("history"));
     result.add(linkTo(methodOn(PumpController.class).getSchedules()).withRel("schedules"));
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
-  @RequestMapping(method = RequestMethod.POST)
+  @RequestMapping(value = "/{id}", method = RequestMethod.POST)
   @ResponseBody
-  public HttpEntity<?> execute(@RequestParam String action, @RequestParam long duration) {
+  public HttpEntity<?> execute(@PathVariable String id, @RequestParam String action, @RequestParam long duration) {
     switch (action) {
     case "activate":
-      storeService.queueActorAction(new ActorAction("pump", "activate", String.valueOf(duration)));
+      storeService.queueActorAction(new ActorAction("pump" + id, "activate", String.valueOf(duration)));
       break;
     default:
       return new ResponseEntity<>("Invalid action parameter", HttpStatus.NOT_FOUND);

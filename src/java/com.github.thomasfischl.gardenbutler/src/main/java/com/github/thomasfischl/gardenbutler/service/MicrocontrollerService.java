@@ -48,6 +48,15 @@ public class MicrocontrollerService {
       return;
     }
 
+    if ("activate".equalsIgnoreCase(action.getAction())) {
+      long duration = Long.valueOf(action.getParam());
+      if ("pump1".equalsIgnoreCase(action.getActorName())) {
+        microcontroller.activatePump1(duration);
+      } else if ("pump2".equalsIgnoreCase(action.getActorName())) {
+        microcontroller.activatePump2(duration);
+      }
+    }
+
     System.out.println("Execute action " + action.getAction() + " on actor " + action.getActorName() + " with parameter (" + action.getParam() + ")");
     // TODO implement me
 
