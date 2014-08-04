@@ -8,3 +8,20 @@ w1-therm
 #After reboot, the temperature sensors are available
 cd /sys/bus/w1/devices/10-*
 cat w1_slave
+
+#Configure interfaces
+sudo nano /etc/network/interfaces
+
+auto eth0
+iface eth0 inet static
+address 192.168.100.2
+netmask 255.255.255.0
+
+allow-hotplug wlan0
+auto wlan0
+iface wlan0 inet static
+address 192.168.1.4
+netmask 255.255.255.0
+gateway 192.168.1.1
+wpa-essid ****
+wpa-psk ****
