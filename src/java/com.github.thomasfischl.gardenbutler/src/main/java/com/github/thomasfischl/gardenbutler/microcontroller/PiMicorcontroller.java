@@ -5,10 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-
-import org.springframework.stereotype.Component;
-
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.pi4j.io.gpio.GpioController;
@@ -17,47 +13,35 @@ import com.pi4j.io.gpio.GpioPinDigitalOutput;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
 
-@Component
-public class PiMicorcontroller {
+public class PiMicorcontroller implements IMicrocontrollerBridge {
 
   private GpioController gpio;
   private GpioPinDigitalOutput relay1;
   private GpioPinDigitalOutput relay2;
 
-  private boolean initialized;
-
   private Map<String, Double> sensorValues = new HashMap<>();
 
-  @PostConstruct
+  @Override
   public void init() {
-    if (!initialized) {
-      try {
-        gpio = GpioFactory.getInstance();
 
-        relay1 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_00, "Pump1", PinState.LOW);
-        relay2 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_02, "Pump2", PinState.LOW);
+    try {
+      gpio = GpioFactory.getInstance();
 
-        initialized = true;
+      relay1 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_00, "Pump1", PinState.LOW);
+      relay2 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_02, "Pump2", PinState.LOW);
 
-        test();
-      } catch (UnsatisfiedLinkError e) {
-        e.printStackTrace();
-        // TODO improve error handling
-      }
+    } catch (UnsatisfiedLinkError e) {
+      e.printStackTrace();
+      // TODO improve error handling
     }
   }
 
-  public boolean isInitialized() {
-    return initialized;
-  }
-
-  public void test() {
-  }
-
+  @Override
   public void activatePump1(long duration) {
     activatePump(relay1, duration);
   }
 
+  @Override
   public void activatePump2(long duration) {
     activatePump(relay2, duration);
   }
@@ -76,10 +60,12 @@ public class PiMicorcontroller {
     }
   }
 
+  @Override
   public void readData() {
     readTemperatureSensors();
   }
 
+  @Override
   public Double getSensorValue(String sensorName) {
     if (!sensorValues.containsKey(sensorName)) {
       System.out.println("Sensor with name '" + sensorName + "' not found.");

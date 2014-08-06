@@ -3,8 +3,6 @@ package com.github.thomasfischl.gardenbutler.rest;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.github.thomasfischl.gardenbutler.domain.SensorData;
 import com.github.thomasfischl.gardenbutler.rest.dto.HistoricalSensorDataDTO;
 import com.github.thomasfischl.gardenbutler.rest.dto.SensorDataDTO;
+import com.github.thomasfischl.gardenbutler.rest.dto.SensorDataListDTO;
 import com.github.thomasfischl.gardenbutler.service.StoreService;
 
 @Controller
@@ -31,13 +30,13 @@ public class SensorController {
 
   @RequestMapping(method = RequestMethod.GET)
   @ResponseBody
-  public HttpEntity<List<SensorDataDTO>> getSensorData() {
+  public HttpEntity<SensorDataListDTO> getSensorData() {
 
-    List<SensorDataDTO> result = new ArrayList<SensorDataDTO>();
+    SensorDataListDTO result = new SensorDataListDTO();
     for (SensorData sensor : sensorStoreService.loadCurrentSensorData()) {
       SensorDataDTO dto = new SensorDataDTO(sensor.getName(), sensor.getValue());
       dto.add(linkTo(methodOn(SensorController.class).getSensorHistroy(sensor.getName())).withRel("history"));
-      result.add(dto);
+      result.addData(dto);
     }
 
     return new ResponseEntity<>(result, HttpStatus.OK);

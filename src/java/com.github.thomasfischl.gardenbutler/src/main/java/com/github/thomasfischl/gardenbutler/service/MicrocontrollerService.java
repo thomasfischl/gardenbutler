@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.github.thomasfischl.gardenbutler.Configuration;
 import com.github.thomasfischl.gardenbutler.domain.ActorAction;
-import com.github.thomasfischl.gardenbutler.microcontroller.PiMicorcontroller;
+import com.github.thomasfischl.gardenbutler.microcontroller.IMicrocontrollerBridge;
 
 @Service
 public class MicrocontrollerService {
@@ -18,15 +18,13 @@ public class MicrocontrollerService {
   private Configuration config;
 
   @Autowired
-  private PiMicorcontroller microcontroller;
+  private IMicrocontrollerBridge microcontroller;
 
   // every 10 seconds
   @Scheduled(fixedRate = 10000)
   public void readData() {
-    System.out.println("Reading data from microcontroller ...");
-
+    // System.out.println("Reading data from microcontroller ...");
     long time = System.currentTimeMillis();
-
     microcontroller.readData();
 
     for (String sensorName : config.getSensorNameList()) {
@@ -41,7 +39,7 @@ public class MicrocontrollerService {
   // every 10 seconds
   @Scheduled(fixedRate = 10000)
   public void executeAction() {
-    System.out.println("Send action to microcontroller ...");
+    // System.out.println("Send action to microcontroller ...");
 
     ActorAction action = storeService.nextActorAction();
     if (action == null) {
@@ -57,9 +55,7 @@ public class MicrocontrollerService {
       }
     }
 
-    System.out.println("Execute action " + action.getAction() + " on actor " + action.getActorName() + " with parameter (" + action.getParam() + ")");
+    // System.out.println("Execute action " + action.getAction() + " on actor " + action.getActorName() + " with parameter (" + action.getParam() + ")");
     // TODO implement me
-
-    microcontroller.test();
   }
 }
