@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.effect.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<fx:root maxHeight="130" minHeight="130" styleClass="tile" stylesheets="@style.css" type="javafx.scene.layout.Pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+	<children>
+		<ProgressBar fx:id="pbTemperature" layoutX="376.0" layoutY="56.0" prefHeight="18.0" prefWidth="87.0" progress="0.54" rotate="-90.0" />
+		<Label fx:id="lbName" layoutX="40.0" layoutY="44.0" text="Temperature" textFill="WHITE">
+			<font>
+				<Font name="System Bold" size="28.0" />
+			</font>
+		</Label>
+		<Polygon fx:id="pTrendUp" fill="#da1515" layoutX="383.0" layoutY="38.0" stroke="BLACK">
+			<points>
+				<Double fx:value="10" />
+				<Double fx:value="0" />
+				<Double fx:value="0" />
+				<Double fx:value="20" />
+				<Double fx:value="20" />
+				<Double fx:value="20" />
+			</points>
+		</Polygon>
+		<Polygon fx:id="pTrendDown" fill="#1b44d7" layoutX="383.0" layoutY="69.0" stroke="BLACK">
+			<points>
+				<Double fx:value="10" />
+				<Double fx:value="20" />
+				<Double fx:value="0" />
+				<Double fx:value="0" />
+				<Double fx:value="20" />
+				<Double fx:value="0" />
+			</points>
+		</Polygon>
+		<AnchorPane layoutX="265.0" layoutY="35.0" prefHeight="61.0" prefWidth="103.0" style="-fx-background-color: white; -fx-background-radius: 10;">
+			<children>
+				<Label fx:id="lbDisplay" alignment="CENTER" contentDisplay="RIGHT" styleClass="digital-font" text="12.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+					<padding>
+						<Insets right="10.0" />
+					</padding>
+				</Label>
+			</children>
+		</AnchorPane>
+	</children>
+</fx:root>
