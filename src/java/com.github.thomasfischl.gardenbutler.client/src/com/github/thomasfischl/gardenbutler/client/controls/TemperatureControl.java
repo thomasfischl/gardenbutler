@@ -2,18 +2,17 @@ package com.github.thomasfischl.gardenbutler.client.controls;
 
 import java.io.IOException;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.event.ActionEvent;
+import javafx.animation.SequentialTransition;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.chart.LineChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Polygon;
-import javafx.util.Duration;
 
 public class TemperatureControl extends Pane {
 
@@ -27,12 +26,18 @@ public class TemperatureControl extends Pane {
   private ProgressBar pbTemperature;
   @FXML
   private Polygon pTrendUp;
+  @FXML
+  private AnchorPane paneChart;
+  @FXML
+  private LineChart<String, Double> chHistroy;
 
   private double lastTemperature;
 
   private double temperature;
 
-  private boolean expand = true;
+  private boolean expanded = false;
+
+  private double originalHeight;
 
   public TemperatureControl() {
     FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("TemperatureControl.fxml"));
@@ -44,36 +49,39 @@ public class TemperatureControl extends Pane {
       throw new IllegalStateException(e);
     }
 
+    originalHeight = getMaxHeight();
+    
+    paneChart.setVisible(false);
+    paneChart.setOpacity(0);
+
     setOnMouseClicked(new EventHandler<MouseEvent>() {
       @Override
       public void handle(MouseEvent event) {
-        TemperatureControl self = TemperatureControl.this;
-
-        Timeline timeline = new Timeline();
-        timeline.setAutoReverse(false);
-        timeline.setCycleCount(100);
-
-        KeyFrame frame = new KeyFrame(Duration.millis(25), new EventHandler<ActionEvent>() {
-          @Override
-          public void handle(ActionEvent event) {
-            double height;
-            if (expand) {
-              height = self.getHeight() - 10;
-            } else {
-              height = self.getHeight() + 10;
-            }
-            self.setMaxHeight(height);
-            self.setPrefHeight(height);
-          }
-        });
-        timeline.getKeyFrames().add(frame);
-        timeline.play();
-
-        expand = !expand;
+        onPanelClick();
       }
     });
   }
 
+  private void onPanelClick() {
+    TemperatureControl self = TemperatureControl.this;
+
+    SequentialTransition seqTrans = new SequentialTransition();
+    if (expanded) {
+      ResizeTransition transResize = new ResizeTransition(self, originalHeight);
+      OpacityTransition transOpacity = new OpacityTransition(paneChart, 0);
+      seqTrans.getChildren().add(transOpacity);
+      seqTrans.getChildren().add(transResize);
+    } else {
+      ResizeTransition transResize = new ResizeTransition(self, originalHeight + 170);
+      OpacityTransition transOpacity = new OpacityTransition(paneChart, 1);
+      seqTrans.getChildren().add(transResize);
+      seqTrans.getChildren().add(transOpacity);
+    }
+    seqTrans.play();
+
+    expanded = !expanded;
+  }
+  
   public void setTemperature(double temperature) {
     this.lastTemperature = this.temperature;
     this.temperature = temperature;

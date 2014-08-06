@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.chart.*?>
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.effect.*?>
@@ -10,7 +11,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 
-<fx:root maxHeight="130" minHeight="130" styleClass="tile" stylesheets="@style.css" type="javafx.scene.layout.Pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root maxHeight="130" maxWidth="480.0" minHeight="130" minWidth="480.0" styleClass="tile" stylesheets="@style.css" type="javafx.scene.layout.Pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
 	<children>
 		<ProgressBar fx:id="pbTemperature" layoutX="376.0" layoutY="56.0" prefHeight="18.0" prefWidth="87.0" progress="0.54" rotate="-90.0" />
 		<Label fx:id="lbName" layoutX="40.0" layoutY="44.0" text="Temperature" textFill="WHITE">
@@ -47,5 +48,17 @@
 				</Label>
 			</children>
 		</AnchorPane>
+      <AnchorPane fx:id="paneChart" layoutX="40.0" layoutY="120.0" maxHeight="150.0" maxWidth="400.0" minHeight="150.0" minWidth="400.0" style="-fx-background-color: white; -fx-background-radius: 10;">
+         <children>
+            <LineChart fx:id="chHistroy" layoutX="3.0" prefHeight="265.0" prefWidth="390.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+              <xAxis>
+                <CategoryAxis side="BOTTOM" />
+              </xAxis>
+              <yAxis>
+                <NumberAxis side="LEFT" upperBound="40.0" />
+              </yAxis>
+            </LineChart>
+         </children>
+      </AnchorPane>
 	</children>
 </fx:root>
