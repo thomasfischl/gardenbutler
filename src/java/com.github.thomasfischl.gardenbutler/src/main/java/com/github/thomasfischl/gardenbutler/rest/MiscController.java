@@ -3,7 +3,6 @@ package com.github.thomasfischl.gardenbutler.rest;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.springframework.hateoas.ResourceSupport;
@@ -29,8 +28,7 @@ public class MiscController {
   @RequestMapping(value = "/time", method = RequestMethod.GET)
   @ResponseBody
   public ResponseEntity<String> getTime() {
-    SimpleDateFormat sdf = new SimpleDateFormat();
-    return new ResponseEntity<>(sdf.format(new Date()), HttpStatus.OK);
+    return new ResponseEntity<>(new Date().toString(), HttpStatus.OK);
   }
 
 }

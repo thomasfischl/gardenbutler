@@ -23,7 +23,7 @@ import com.github.thomasfischl.gardenbutler.microcontroller.IMicrocontrollerBrid
 public class MicrocontrollerService {
 
   private static final Logger LOG = LoggerFactory.getLogger(MicrocontrollerService.class);
-  
+
   @Autowired
   private StoreService storeService;
 
@@ -93,9 +93,9 @@ public class MicrocontrollerService {
   }
 
   private void executeActorSchedule(ActorSchedule schedule, Date date) {
-    LOG.info("Execute schedule: " + schedule + " (" + date.toString() + ")");
+    LOG.info("Execute schedule: " + schedule + " (" + date + ")");
     lastScheduleRuns.put(schedule.getId(), date.getTime());
     storeService.queueActorAction(new ActorAction(schedule.getActorName(), schedule.getAction(), schedule.getParam(), "Triggered by schedule '"
-        + schedule.getId() + "'. Time: " + date.getTime()));
+        + schedule.getId() + "'. Time: " + date));
   }
 }
