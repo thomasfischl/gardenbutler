@@ -20,6 +20,7 @@ public class MicrocontrollerBridgeMaster implements IMicrocontrollerBridge {
       } else {
         controller = new PiMicorcontroller();
       }
+      controller.init();
       initialized = true;
     }
   }
