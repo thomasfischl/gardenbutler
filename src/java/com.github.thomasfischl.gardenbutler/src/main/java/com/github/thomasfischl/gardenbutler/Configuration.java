@@ -26,6 +26,9 @@ public class Configuration {
   @Value("${sensor.names}")
   private String sensorNames;
 
+  @Value("${logging.path}")
+  private String loggingPath;
+
   private List<SensorMetaData> sensorNameList;
 
   @PostConstruct
@@ -34,6 +37,7 @@ public class Configuration {
     LOG.info("-  GardenButler v2 Configuartion                   -");
     LOG.info("----------------------------------------------------");
     LOG.info("- Database File: " + getDatabaseFilePath());
+    LOG.info("- Logging Path: " + getLoggingPath());
 
     List<SensorMetaData> sensors = getSensorNameList();
     for (int i = 0; i < sensors.size(); i++) {
@@ -44,6 +48,10 @@ public class Configuration {
 
   public String getDatabaseFilePath() {
     return databaseFilePath;
+  }
+
+  public String getLoggingPath() {
+    return loggingPath;
   }
 
   public List<SensorMetaData> getSensorNameList() {
