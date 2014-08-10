@@ -19,20 +19,27 @@ import org.springframework.stereotype.Service;
 
 import com.github.thomasfischl.gardenbutler.Configuration;
 import com.github.thomasfischl.gardenbutler.domain.ActorAction;
+import com.github.thomasfischl.gardenbutler.domain.ActorSchedule;
+import com.github.thomasfischl.gardenbutler.domain.DomainStore;
+import com.github.thomasfischl.gardenbutler.domain.JsonSerializer;
 import com.github.thomasfischl.gardenbutler.domain.SensorData;
 import com.google.common.collect.Maps;
 
 @Service
 public class StoreService {
 
+  @Autowired
+  private Configuration config;
+
   private DB db;
 
   private HTreeMap<String, Double> currSensorData;
 
+  private DomainStore<ActorSchedule> actorSchedulesStore;
+
   private BlockingQueue<ActorAction> actorActionQueue;
 
-  @Autowired
-  private Configuration config;
+  private DomainStore<ActorAction> actorActionStore;
 
   @PostConstruct
   public void init() {
@@ -52,9 +59,11 @@ public class StoreService {
     if (db.exists("actor-actions")) {
       actorActionQueue = db.getQueue("actor-actions");
     } else {
-      actorActionQueue = db.createQueue("actor-actions", ActorAction.getSerializer(), true);
+      actorActionQueue = db.createQueue("actor-actions", new JsonSerializer<ActorAction>(ActorAction.class), true);
     }
 
+    actorSchedulesStore = new DomainStore<ActorSchedule>(db, "actor-schedule-store", new JsonSerializer<ActorSchedule>(ActorSchedule.class));
+    actorActionStore = new DomainStore<ActorAction>(db, "actor-action-store", new JsonSerializer<ActorAction>(ActorAction.class));
   }
 
   public List<SensorData> loadCurrentSensorData() {
@@ -99,6 +108,14 @@ public class StoreService {
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public DomainStore<ActorSchedule> getActorSchedulesStore() {
+    return actorSchedulesStore;
+  }
+
+  public DomainStore<ActorAction> getActorActionStore() {
+    return actorActionStore;
   }
 
   private String getMapName(String sensorName) {

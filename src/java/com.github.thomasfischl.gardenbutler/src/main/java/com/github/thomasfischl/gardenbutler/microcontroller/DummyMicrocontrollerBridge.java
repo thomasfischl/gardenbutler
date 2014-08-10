@@ -8,20 +8,14 @@ public class DummyMicrocontrollerBridge implements IMicrocontrollerBridge {
 
   @Override
   public void init() {
-    // TODO Auto-generated method stub
-
   }
 
   @Override
   public void activatePump1(long duration) {
-    // TODO Auto-generated method stub
-
   }
 
   @Override
   public void activatePump2(long duration) {
-    // TODO Auto-generated method stub
-
   }
 
   @Override

@@ -2,16 +2,23 @@ package com.github.thomasfischl.gardenbutler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.github.thomasfischl.gardenbutler.service.MicrocontrollerService;
 import com.google.common.base.Splitter;
 
 @Component
 public class Configuration {
+
+  private static final Logger LOG = LoggerFactory.getLogger(MicrocontrollerService.class);
 
   @Value("${database.file}")
   private String databaseFilePath;
@@ -19,31 +26,34 @@ public class Configuration {
   @Value("${sensor.names}")
   private String sensorNames;
 
-  private List<String> sensorNameList;
+  private List<SensorMetaData> sensorNameList;
 
   @PostConstruct
   private void init() {
-    System.out.println("----------------------------------------------------");
-    System.out.println("-  GardenButler v2 Configuartion                   -");
-    System.out.println("----------------------------------------------------");
-    System.out.println("- Database File: " + getDatabaseFilePath());
+    LOG.info("----------------------------------------------------");
+    LOG.info("-  GardenButler v2 Configuartion                   -");
+    LOG.info("----------------------------------------------------");
+    LOG.info("- Database File: " + getDatabaseFilePath());
 
-    List<String> sensors = getSensorNameList();
+    List<SensorMetaData> sensors = getSensorNameList();
     for (int i = 0; i < sensors.size(); i++) {
-      System.out.println("- Sensor " + i + ": " + sensors.get(i));
+      LOG.info("- Sensor " + i + ": " + sensors.get(i));
     }
-    System.out.println("----------------------------------------------------");
+    LOG.info("----------------------------------------------------");
   }
 
   public String getDatabaseFilePath() {
     return databaseFilePath;
   }
 
-  public List<String> getSensorNameList() {
+  public List<SensorMetaData> getSensorNameList() {
     if (sensorNameList == null) {
-      sensorNameList = new ArrayList<String>();
+      sensorNameList = new ArrayList<>();
       if (sensorNames != null) {
-        sensorNameList.addAll(Splitter.on(";").trimResults().splitToList(sensorNames));
+        Map<String, String> data = Splitter.on(";").trimResults().withKeyValueSeparator("=>").split(sensorNames);
+        for (Entry<String, String> sensor : data.entrySet()) {
+          sensorNameList.add(new SensorMetaData(sensor.getValue(), sensor.getKey()));
+        }
       }
     }
     return sensorNameList;

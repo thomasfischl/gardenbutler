@@ -5,6 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.github.thomasfischl.gardenbutler.service.MicrocontrollerService;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.pi4j.io.gpio.GpioController;
@@ -14,6 +18,8 @@ import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
 
 public class PiMicorcontroller implements IMicrocontrollerBridge {
+
+  private static final Logger LOG = LoggerFactory.getLogger(MicrocontrollerService.class);
 
   private GpioController gpio;
   private GpioPinDigitalOutput relay1;
@@ -31,8 +37,7 @@ public class PiMicorcontroller implements IMicrocontrollerBridge {
       relay2 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_02, "Pump2", PinState.LOW);
 
     } catch (UnsatisfiedLinkError e) {
-      e.printStackTrace();
-      // TODO improve error handling
+      LOG.error(String.valueOf(e), e);
     }
   }
 
@@ -68,7 +73,7 @@ public class PiMicorcontroller implements IMicrocontrollerBridge {
   @Override
   public Double getSensorValue(String sensorName) {
     if (!sensorValues.containsKey(sensorName)) {
-      System.out.println("Sensor with name '" + sensorName + "' not found.");
+      LOG.info("Sensor with name '" + sensorName + "' not found.");
       return null;
     }
 
@@ -91,7 +96,7 @@ public class PiMicorcontroller implements IMicrocontrollerBridge {
           if (slaveFile.exists() && slaveFile.isFile()) {
             Double value = readTemperatureSensor(slaveFile);
             if (value != null) {
-              System.out.println("Temperature: " + f.getName() + " => " + value);
+              // System.out.println("Temperature: " + f.getName() + " => " + value);
               sensorValues.put("Temperature-" + f.getName(), value);
             }
           }
@@ -118,8 +123,7 @@ public class PiMicorcontroller implements IMicrocontrollerBridge {
         }
       }
     } catch (Exception e) {
-      e.printStackTrace();
-      // TODO improve error handling
+      LOG.error(String.valueOf(e), e);
     }
     return null;
   }
