@@ -18,6 +18,7 @@ public class GradenbutlerApplication extends Application {
   @Override
   public void start(Stage root) throws Exception {
     ctx = new AnnotationConfigApplicationContext(SpringJavaConfig.class);
+    DI.setApplicationContext(ctx);
     Font.loadFont(GradenbutlerApplication.class.getResource("/digitalfont.ttf").toExternalForm(), 10);
     root.setTitle("Gardenbutler v2");
     root.setScene(new Scene(ctx.getBean(LoginPage.class), 400, 160));

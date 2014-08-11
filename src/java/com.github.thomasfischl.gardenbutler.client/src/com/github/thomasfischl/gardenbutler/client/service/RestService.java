@@ -7,6 +7,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.github.thomasfischl.gardenbutler.client.MainPane;
+import com.github.thomasfischl.gardenbutler.client.rest.HistoricalSensorDataDTO;
 import com.github.thomasfischl.gardenbutler.client.rest.RestClient;
 import com.github.thomasfischl.gardenbutler.client.rest.SensorDataDTO;
 import com.github.thomasfischl.gardenbutler.client.rest.SensorDataListDTO;
@@ -30,11 +31,15 @@ public class RestService {
       @Override
       public void run() {
         for (SensorDataDTO data : dataList.getData()) {
-          controller.update(data.getName(), data.getValue());
+          controller.update(data);
         }
       }
     });
 
+  }
+  
+  public HistoricalSensorDataDTO getHistoricalSensorData(SensorDataDTO dto){
+    return client.getHistroyForSensor(dto);
   }
 
   public void setController(MainPane controller) {

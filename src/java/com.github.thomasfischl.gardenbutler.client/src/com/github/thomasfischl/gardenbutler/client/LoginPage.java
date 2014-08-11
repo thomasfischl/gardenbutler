@@ -66,6 +66,7 @@ public class LoginPage extends AnchorPane {
     }
 
     cbServers.getItems().add("http://localhost:8000");
+    cbServers.getItems().add("http://90.146.153.210:8000");
     cbServers.getSelectionModel().select(0);
   }
 }

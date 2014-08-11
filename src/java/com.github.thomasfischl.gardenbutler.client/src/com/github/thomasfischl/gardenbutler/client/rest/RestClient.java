@@ -1,5 +1,7 @@
 package com.github.thomasfischl.gardenbutler.client.rest;
 
+import java.net.URLDecoder;
+
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.http.ResponseEntity;
@@ -44,11 +46,11 @@ public class RestClient {
     return new SensorDataListDTO();
   }
 
-  public HistoricalSensorDataDTO getHistroyForSensor(SensorDataListDTO dto) {
+  public HistoricalSensorDataDTO getHistroyForSensor(SensorDataDTO dto) {
 
     Link historyLink = dto.getLink("history");
     if (historyLink != null) {
-      ResponseEntity<HistoricalSensorDataDTO> entity = template.getForEntity(historyLink.getHref(), HistoricalSensorDataDTO.class);
+      ResponseEntity<HistoricalSensorDataDTO> entity = template.getForEntity(URLDecoder.decode(historyLink.getHref()), HistoricalSensorDataDTO.class);
       return entity.getBody();
     }
 

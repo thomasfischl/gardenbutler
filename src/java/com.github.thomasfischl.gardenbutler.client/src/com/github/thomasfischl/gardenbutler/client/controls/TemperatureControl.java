@@ -1,12 +1,16 @@
 package com.github.thomasfischl.gardenbutler.client.controls;
 
 import java.io.IOException;
+import java.util.List;
 
 import javafx.animation.SequentialTransition;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.XYChart.Data;
+import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.input.MouseEvent;
@@ -35,11 +39,13 @@ public class TemperatureControl extends Pane {
 
   private double temperature;
 
-  private boolean expanded = false;
-
   private double originalHeight;
 
-  public TemperatureControl() {
+  private boolean expanded = false;
+
+  private EventHandler<? super Event> onChartShowHandler;
+
+  public TemperatureControl(String name) {
     FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("TemperatureControl.fxml"));
     fxmlLoader.setRoot(this);
     fxmlLoader.setController(this);
@@ -50,7 +56,7 @@ public class TemperatureControl extends Pane {
     }
 
     originalHeight = getMaxHeight();
-    
+
     paneChart.setVisible(false);
     paneChart.setOpacity(0);
 
@@ -60,28 +66,31 @@ public class TemperatureControl extends Pane {
         onPanelClick();
       }
     });
+    
+    lbName.setText(name);
   }
 
   private void onPanelClick() {
-    TemperatureControl self = TemperatureControl.this;
 
     SequentialTransition seqTrans = new SequentialTransition();
     if (expanded) {
-      ResizeTransition transResize = new ResizeTransition(self, originalHeight);
+      ResizeTransition transResize = new ResizeTransition(this, originalHeight);
       OpacityTransition transOpacity = new OpacityTransition(paneChart, 0);
       seqTrans.getChildren().add(transOpacity);
       seqTrans.getChildren().add(transResize);
     } else {
-      ResizeTransition transResize = new ResizeTransition(self, originalHeight + 170);
+      ResizeTransition transResize = new ResizeTransition(this, originalHeight + 170);
       OpacityTransition transOpacity = new OpacityTransition(paneChart, 1);
       seqTrans.getChildren().add(transResize);
       seqTrans.getChildren().add(transOpacity);
+
+      onChartShowHandler.handle(new Event(this, this, Event.ANY));
     }
     seqTrans.play();
 
     expanded = !expanded;
   }
-  
+
   public void setTemperature(double temperature) {
     this.lastTemperature = this.temperature;
     this.temperature = temperature;
@@ -97,6 +106,17 @@ public class TemperatureControl extends Pane {
     }
 
     pbTemperature.setProgress(temperature / 40);
+  }
+
+  public final void setOnChartShow(EventHandler<? super Event> value) {
+    onChartShowHandler = value;
+  }
+
+  public void setChartData(List<Data<String, Double>> values) {
+    chHistroy.getData().clear();
+    Series<String, Double> e = new Series<String, Double>();
+    e.getData().addAll(values);
+    chHistroy.getData().add(e);
   }
 
 }
