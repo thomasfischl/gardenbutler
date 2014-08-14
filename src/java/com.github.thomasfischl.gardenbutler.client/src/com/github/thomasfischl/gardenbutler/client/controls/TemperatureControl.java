@@ -1,11 +1,11 @@
 package com.github.thomasfischl.gardenbutler.client.controls;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import javafx.animation.SequentialTransition;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.chart.LineChart;
@@ -13,13 +13,18 @@ import javafx.scene.chart.XYChart.Data;
 import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Polygon;
 
+import com.github.thomasfischl.gardenbutler.client.DI;
+import com.github.thomasfischl.gardenbutler.client.javafx.ControlExpander;
+import com.github.thomasfischl.gardenbutler.client.javafx.CssUtil;
+import com.github.thomasfischl.gardenbutler.client.util.RollingAverage;
+
 public class TemperatureControl extends Pane {
 
+  private static final int MAX_TEMPERATURE = 40;
   @FXML
   private Label lbDisplay;
   @FXML
@@ -35,17 +40,14 @@ public class TemperatureControl extends Pane {
   @FXML
   private LineChart<String, Double> chHistroy;
 
-  private double lastTemperature;
+  private RollingAverage temperatureAverage = new RollingAverage(10);
 
-  private double temperature;
+  private ControlExpander controlExpander;
 
-  private double originalHeight;
-
-  private boolean expanded = false;
-
-  private EventHandler<? super Event> onChartShowHandler;
+  private String name;
 
   public TemperatureControl(String name) {
+    this.name = name;
     FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("TemperatureControl.fxml"));
     fxmlLoader.setRoot(this);
     fxmlLoader.setController(this);
@@ -55,49 +57,19 @@ public class TemperatureControl extends Pane {
       throw new IllegalStateException(e);
     }
 
-    originalHeight = getMaxHeight();
-
-    paneChart.setVisible(false);
-    paneChart.setOpacity(0);
-
-    setOnMouseClicked(new EventHandler<MouseEvent>() {
-      @Override
-      public void handle(MouseEvent event) {
-        onPanelClick();
-      }
-    });
-    
     lbName.setText(name);
-  }
 
-  private void onPanelClick() {
+    controlExpander = new ControlExpander(this, paneChart, 170);
+    setOnMouseClicked(e -> controlExpander.toggle());
 
-    SequentialTransition seqTrans = new SequentialTransition();
-    if (expanded) {
-      ResizeTransition transResize = new ResizeTransition(this, originalHeight);
-      OpacityTransition transOpacity = new OpacityTransition(paneChart, 0);
-      seqTrans.getChildren().add(transOpacity);
-      seqTrans.getChildren().add(transResize);
-    } else {
-      ResizeTransition transResize = new ResizeTransition(this, originalHeight + 170);
-      OpacityTransition transOpacity = new OpacityTransition(paneChart, 1);
-      seqTrans.getChildren().add(transResize);
-      seqTrans.getChildren().add(transOpacity);
-
-      onChartShowHandler.handle(new Event(this, this, Event.ANY));
-    }
-    seqTrans.play();
-
-    expanded = !expanded;
+    controlExpander.setOnExpanded(e -> showChart());
   }
 
   public void setTemperature(double temperature) {
-    this.lastTemperature = this.temperature;
-    this.temperature = temperature;
-
+    temperatureAverage.add(temperature);
     lbDisplay.setText(String.format("%.1f", temperature));
 
-    if (temperature > lastTemperature) {
+    if (temperature > temperatureAverage.getAverage()) {
       pTrendUp.setOpacity(1);
       pTrendDown.setOpacity(0.40);
     } else {
@@ -105,15 +77,22 @@ public class TemperatureControl extends Pane {
       pTrendUp.setOpacity(0.40);
     }
 
-    pbTemperature.setProgress(temperature / 40);
+    double temp = temperature / MAX_TEMPERATURE;
+    pbTemperature.setProgress(temp);
+    pbTemperature.setStyle("-fx-accent: " + CssUtil.hsb(170 - (170 * temp), 1.0, 1.0));
   }
 
-  public final void setOnChartShow(EventHandler<? super Event> value) {
-    onChartShowHandler = value;
-  }
+  private void showChart() {
 
-  public void setChartData(List<Data<String, Double>> values) {
+    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+    List<Data<String, Double>> values = DI.client().getHistoricalSensorData(name).getHistoricalData().entrySet().stream().filter(obj -> obj.getValue() != 0)
+        .map(obj -> {
+          return new Data<String, Double>(sdf.format(obj.getKey()).toString(), obj.getValue());
+        }).collect(Collectors.toList());
+
     chHistroy.getData().clear();
+    chHistroy.setAnimated(true);
+    chHistroy.getXAxis().invalidateRange(Collections.emptyList());
     Series<String, Double> e = new Series<String, Double>();
     e.getData().addAll(values);
     chHistroy.getData().add(e);

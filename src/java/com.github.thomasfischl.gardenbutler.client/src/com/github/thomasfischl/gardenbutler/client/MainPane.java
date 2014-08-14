@@ -1,40 +1,45 @@
 package com.github.thomasfischl.gardenbutler.client;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.chart.XYChart.Data;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import com.github.thomasfischl.gardenbutler.client.controls.ActorControl;
 import com.github.thomasfischl.gardenbutler.client.controls.TemperatureControl;
-import com.github.thomasfischl.gardenbutler.client.rest.HistoricalSensorDataDTO;
+import com.github.thomasfischl.gardenbutler.client.javafx.OpacityTransition;
+import com.github.thomasfischl.gardenbutler.client.javafx.Util;
 import com.github.thomasfischl.gardenbutler.client.rest.SensorDataDTO;
 import com.github.thomasfischl.gardenbutler.client.service.RestService;
 
 @Component
+@Lazy
 public class MainPane extends AnchorPane {
 
   private Map<String, TemperatureControl> controls = new HashMap<String, TemperatureControl>();
 
   @Autowired
   private RestService service;
+
+  @FXML
+  private BorderPane paneLoading;
+
+  @FXML
+  private ProgressIndicator piLoadingIndicator;
 
   @FXML
   private VBox boxMain;
@@ -55,41 +60,53 @@ public class MainPane extends AnchorPane {
       throw new IllegalStateException(e);
     }
 
+    piLoadingIndicator.setProgress(-1);
   }
 
   @PostConstruct
   private void init() {
+    DI.getTaskExecutor().execute(() -> loadData());
+  }
+
+  private void loadData() {
+    Util.sleep(2000);
+
+    service.getSensorNames().forEach(name -> Platform.runLater(() -> addSensor(name)));
+    Platform.runLater(() -> addPump("pump1", "Pump 1"));
+    Platform.runLater(() -> addPump("pump2", "Pump 2"));
+
     service.setController(this);
+
+    Util.sleep(1000);
+    Platform.runLater(() -> paneLoading.setVisible(false));
+  }
+
+  private void addPump(String name, String displayName) {
+    ActorControl pump = new ActorControl(name, displayName);
+    pump.setOpacity(0);
+
+    boxMain.getChildren().add(pump);
+    new OpacityTransition(pump, 1, 1000).play();
+  }
+
+  private void addSensor(String name) {
+    if (name.equals("Temp 1")) {
+      return;
+    }
+    if (!controls.containsKey(name)) {
+      TemperatureControl ctrl = new TemperatureControl(name);
+      ctrl.setOpacity(0);
+
+      boxMain.getChildren().add(ctrl);
+      controls.put(name, ctrl);
+      new OpacityTransition(ctrl, 1, 1000).play();
+    }
   }
 
   public void update(SensorDataDTO data) {
-    if (!controls.containsKey(data.getName())) {
-      TemperatureControl ctrl = new TemperatureControl(data.getName());
-
-      ctrl.setOnChartShow(new EventHandler<Event>() {
-        @Override
-        public void handle(Event event) {
-          HistoricalSensorDataDTO historicalData = service.getHistoricalSensorData(data);
-          List<Data<String, Double>> values = new ArrayList<Data<String, Double>>();
-
-          for (Entry<Long, Double> entry : historicalData.getHistoricalData().entrySet()) {
-            if(entry.getValue() == 0){
-              continue;
-            }
-            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-            Data<String, Double> chartData = new Data<String, Double>(sdf.format(entry.getKey()).toString(), entry.getValue());
-            values.add(chartData);
-          }
-
-          ctrl.setChartData(values);
-        }
-      });
-
-      boxMain.getChildren().add(ctrl);
-      controls.put(data.getName(), ctrl);
-    }
-
     TemperatureControl ctrl = controls.get(data.getName());
-    ctrl.setTemperature(data.getValue());
+    if (ctrl != null) {
+      ctrl.setTemperature(data.getValue());
+    }
   }
 }

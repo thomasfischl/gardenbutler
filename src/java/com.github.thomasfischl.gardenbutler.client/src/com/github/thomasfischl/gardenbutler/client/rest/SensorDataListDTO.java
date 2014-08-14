@@ -1,6 +1,7 @@
 package com.github.thomasfischl.gardenbutler.client.rest;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.hateoas.ResourceSupport;
@@ -18,6 +19,9 @@ public class SensorDataListDTO extends ResourceSupport {
   }
 
   public List<SensorDataDTO> getData() {
+    if (data == null) {
+      return Collections.emptyList();
+    }
     return data;
   }
 

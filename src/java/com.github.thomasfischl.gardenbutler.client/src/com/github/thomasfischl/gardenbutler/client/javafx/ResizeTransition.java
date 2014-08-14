@@ -1,4 +1,4 @@
-package com.github.thomasfischl.gardenbutler.client.controls;
+package com.github.thomasfischl.gardenbutler.client.javafx;
 
 import javafx.animation.Transition;
 import javafx.scene.layout.Pane;

@@ -51,7 +51,7 @@ public class LoginPage extends AnchorPane {
 
     Stage stage = new Stage();
     stage.setTitle("Gardenbutler v2");
-    stage.setScene(new Scene(ctx.getBean(MainPane.class), 470, 540));
+    stage.setScene(new Scene(ctx.getBean(MainPane.class), 490, 540));
     stage.show();
   }
 
@@ -67,6 +67,6 @@ public class LoginPage extends AnchorPane {
 
     cbServers.getItems().add("http://localhost:8000");
     cbServers.getItems().add("http://90.146.153.210:8000");
-    cbServers.getSelectionModel().select(0);
+    cbServers.getSelectionModel().select(1);
   }
 }

@@ -1,4 +1,4 @@
-package com.github.thomasfischl.gardenbutler.client.controls;
+package com.github.thomasfischl.gardenbutler.client.javafx;
 
 import javafx.animation.Transition;
 import javafx.scene.layout.Pane;
@@ -11,6 +11,10 @@ public class OpacityTransition extends Transition {
   private double sourceValue;
 
   public OpacityTransition(Pane ctrl, double opacity) {
+    this(ctrl, opacity, 300);
+  }
+
+  public OpacityTransition(Pane ctrl, double opacity, double duration) {
     if (opacity < 0 || opacity > 1) {
       throw new IllegalArgumentException("Invalid opacity value. Value must be between 0 and 1.");
     }
@@ -20,7 +24,7 @@ public class OpacityTransition extends Transition {
 
     sourceValue = ctrl.getOpacity();
 
-    setCycleDuration(Duration.millis(300));
+    setCycleDuration(Duration.millis(duration));
     setRate(1);
     setAutoReverse(false);
     setCycleCount(1);

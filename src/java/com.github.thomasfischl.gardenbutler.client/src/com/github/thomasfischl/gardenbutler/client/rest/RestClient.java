@@ -1,6 +1,8 @@
 package com.github.thomasfischl.gardenbutler.client.rest;
 
 import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.ResourceSupport;
@@ -18,9 +20,9 @@ public class RestClient {
 
   private RestTemplate template;
 
-  private Link sensorsLink;
-
   private boolean initialized;
+
+  private Map<String, String> urls = new HashMap<>();
 
   public RestClient() {
     template = new RestTemplate();
@@ -28,7 +30,7 @@ public class RestClient {
 
   public SensorDataListDTO getCurrentSensorValues() {
     try {
-      ResponseEntity<SensorDataListDTO> entity = template.getForEntity(sensorsLink.getHref(), SensorDataListDTO.class);
+      ResponseEntity<SensorDataListDTO> entity = template.getForEntity(urls.get("sensors"), SensorDataListDTO.class);
       if (entity.hasBody()) {
         return entity.getBody();
       }
@@ -46,19 +48,16 @@ public class RestClient {
     return new SensorDataListDTO();
   }
 
-  public HistoricalSensorDataDTO getHistroyForSensor(SensorDataDTO dto) {
+  public HistoricalSensorDataDTO getHistroyForSensor(String name) {
+    return template.getForEntity(urls.get(name + "-history"), HistoricalSensorDataDTO.class).getBody();
+  }
 
-    Link historyLink = dto.getLink("history");
-    if (historyLink != null) {
-      ResponseEntity<HistoricalSensorDataDTO> entity = template.getForEntity(URLDecoder.decode(historyLink.getHref()), HistoricalSensorDataDTO.class);
-      return entity.getBody();
-    }
-
-    return null;
+  public HistoricalActorActionDataDTO getHistroyForPump(String name) {
+    return template.getForEntity(urls.get(name + "-history"), HistoricalActorActionDataDTO.class).getBody();
   }
 
   private SensorDataListDTO parseResult() {
-    ResponseEntity<String> entity = template.getForEntity(sensorsLink.getHref(), String.class);
+    ResponseEntity<String> entity = template.getForEntity(urls.get("sensors"), String.class);
 
     JsonParser parser = new JsonParser();
     JsonElement root = parser.parse(entity.getBody());
@@ -82,7 +81,15 @@ public class RestClient {
         System.out.println(link.getRel() + " => " + link.getHref());
       }
 
-      sensorsLink = entity.getBody().getLink("sensors");
+      urls.put("sensors", entity.getBody().getLink("sensors").getHref());
+      urls.put("pumps", entity.getBody().getLink("pump").getHref());
+      getCurrentSensorValues().getData().forEach(obj -> urls.put(obj.getName() + "-history", URLDecoder.decode(obj.getLink("history").getHref())));
+
+      ResponseEntity<ResourceSupport> pumpResp = template.getForEntity(urls.get("pumps"), ResourceSupport.class);
+      urls.put("pump1-history", pumpResp.getBody().getLink("history").getHref());
+      urls.put("pump2-history", pumpResp.getBody().getLink("history").getHref()); // FIXME fix rest service
+      urls.put("pump1-activate", pumpResp.getBody().getLink("pump1-activate").getHref());
+      urls.put("pump2-activate", pumpResp.getBody().getLink("pump2-activate").getHref());
     }
     initialized = true;
   }
