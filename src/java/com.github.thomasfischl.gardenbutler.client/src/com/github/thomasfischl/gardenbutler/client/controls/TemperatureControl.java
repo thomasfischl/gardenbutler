@@ -58,11 +58,11 @@ public class TemperatureControl extends Pane {
     }
 
     lbName.setText(name);
+    setTemperature(-1);
 
     controlExpander = new ControlExpander(this, paneChart, 170);
-    setOnMouseClicked(e -> controlExpander.toggle());
-
     controlExpander.setOnExpanded(e -> showChart());
+    setOnMouseClicked(e -> controlExpander.toggle());
   }
 
   public void setTemperature(double temperature) {
@@ -85,7 +85,7 @@ public class TemperatureControl extends Pane {
   private void showChart() {
 
     SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-    List<Data<String, Double>> values = DI.client().getHistoricalSensorData(name).getHistoricalData().entrySet().stream().filter(obj -> obj.getValue() != 0)
+    List<Data<String, Double>> values = DI.client().getHistroyForSensor(name).getHistoricalData().entrySet().stream().filter(obj -> obj.getValue() != 0)
         .map(obj -> {
           return new Data<String, Double>(sdf.format(obj.getKey()).toString(), obj.getValue());
         }).collect(Collectors.toList());

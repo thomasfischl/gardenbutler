@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.springframework.hateoas.ResourceSupport;
-
-public class SensorDataListDTO extends ResourceSupport {
+public class SensorDataListDTO {
 
   private List<SensorDataDTO> data = new ArrayList<SensorDataDTO>();
 

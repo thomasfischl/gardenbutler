@@ -2,9 +2,7 @@ package com.github.thomasfischl.gardenbutler.client.rest;
 
 import java.util.Map;
 
-import org.springframework.hateoas.ResourceSupport;
-
-public class HistoricalSensorDataDTO extends ResourceSupport {
+public class HistoricalSensorDataDTO {
 
   private String name;
 

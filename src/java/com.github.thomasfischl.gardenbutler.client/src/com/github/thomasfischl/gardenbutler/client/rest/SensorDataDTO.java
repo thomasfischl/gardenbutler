@@ -1,8 +1,6 @@
 package com.github.thomasfischl.gardenbutler.client.rest;
 
-import org.springframework.hateoas.ResourceSupport;
-
-public class SensorDataDTO extends ResourceSupport {
+public class SensorDataDTO {
 
   private String name;
 

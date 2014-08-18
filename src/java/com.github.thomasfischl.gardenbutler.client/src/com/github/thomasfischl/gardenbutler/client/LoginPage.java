@@ -12,20 +12,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
-
-import com.github.thomasfischl.gardenbutler.client.rest.RestClient;
-
-@Component
 public class LoginPage extends AnchorPane {
-
-  @Autowired
-  private RestClient client;
-
-  @Autowired
-  private ApplicationContext ctx;
 
   @FXML
   private PasswordField tfPassword;
@@ -41,7 +28,7 @@ public class LoginPage extends AnchorPane {
   @FXML
   private void doLogin(ActionEvent event) {
     try {
-      client.init(cbServers.getSelectionModel().getSelectedItem());
+      DI.client().init(cbServers.getSelectionModel().getSelectedItem());
     } catch (Exception e) {
       e.printStackTrace();
       return;
@@ -51,7 +38,7 @@ public class LoginPage extends AnchorPane {
 
     Stage stage = new Stage();
     stage.setTitle("Gardenbutler v2");
-    stage.setScene(new Scene(ctx.getBean(MainPane.class), 490, 540));
+    stage.setScene(new Scene(new MainPane(), 490, 540));
     stage.show();
   }
 

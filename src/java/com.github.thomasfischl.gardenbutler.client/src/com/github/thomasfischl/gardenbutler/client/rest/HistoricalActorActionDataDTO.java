@@ -3,9 +3,7 @@ package com.github.thomasfischl.gardenbutler.client.rest;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.hateoas.ResourceSupport;
-
-public class HistoricalActorActionDataDTO extends ResourceSupport {
+public class HistoricalActorActionDataDTO {
 
   private List<ActorActionDTO> data = new ArrayList<>();
 

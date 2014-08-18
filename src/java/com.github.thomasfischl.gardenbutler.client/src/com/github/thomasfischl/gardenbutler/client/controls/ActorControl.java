@@ -65,7 +65,7 @@ public class ActorControl extends Pane {
 
   @FXML
   private void onActivate(ActionEvent e) {
-    // TODO implement me
+    DI.client().activatePump(name);
   }
 
 }
