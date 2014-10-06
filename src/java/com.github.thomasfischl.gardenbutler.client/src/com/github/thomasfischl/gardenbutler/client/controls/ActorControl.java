@@ -2,6 +2,11 @@ package com.github.thomasfischl.gardenbutler.client.controls;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.stream.Stream;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -13,6 +18,7 @@ import javafx.scene.layout.Pane;
 
 import com.github.thomasfischl.gardenbutler.client.DI;
 import com.github.thomasfischl.gardenbutler.client.javafx.ControlExpander;
+import com.github.thomasfischl.gardenbutler.client.rest.HistoricalActorActionDataDTO.ActorActionDTO;
 
 public class ActorControl extends Pane {
 
@@ -22,10 +28,16 @@ public class ActorControl extends Pane {
   private AnchorPane paneHistroy;
   @FXML
   private Label lbName;
+  @FXML
+  private Label lbLoadAll;
+  @FXML
+  private Label lbTotalTime;
 
   private ControlExpander controlExpander;
 
   private String name;
+
+  private boolean showAll;
 
   public ActorControl(String name, String displayName) {
     this.name = name;
@@ -40,27 +52,53 @@ public class ActorControl extends Pane {
     lbName.setText(displayName);
 
     controlExpander = new ControlExpander(this, paneHistroy, 170);
-    controlExpander.setOnExpanded(e -> updateHistroy());
+    controlExpander.setOnExpanded(e -> updateHistory());
 
     setOnMouseClicked(e -> controlExpander.toggle());
+    lbLoadAll.setOnMouseClicked(e -> {
+      showAll = true;
+      e.consume();
+      controlExpander.toggle(false);
+    });
   }
 
-  private void updateHistroy() {
+  private void updateHistory() {
     SimpleDateFormat sdf = new SimpleDateFormat("yyy.MM.dd HH:mm");
 
     lvHistory.getItems().clear();
-    DI.client().getHistroyForPump(name).getData().stream().sorted((a, b) -> a.getExecutionTime() > b.getExecutionTime() ? -1 : 1).forEach(obj -> {
+    List<ActorActionDTO> data = DI.client().getHistroyForPump(name).getData();
+
+    long cumulativeTimeToday = data.stream()
+        .filter(obj -> Instant.ofEpochMilli(obj.getExecutionTime()).atZone(ZoneId.systemDefault()).toLocalDate().equals(LocalDate.now()))
+        .mapToLong(obj -> Long.valueOf(obj.getParam())).sum();
+
+    lbTotalTime.setText(String.format("Cumulative Time Today: %.2f sec ", (double) cumulativeTimeToday / 1000));
+
+    Stream<ActorActionDTO> stream = data.stream().sorted((a, b) -> a.getExecutionTime() > b.getExecutionTime() ? -1 : 1);
+    if (!showAll) {
+      stream = stream.limit(10);
+    }
+    stream.forEach(obj -> {
       String row = sdf.format(obj.getExecutionTime()) + " - ";
       if (obj.getDescription().contains("Time:")) {
         row += obj.getDescription().substring(0, obj.getDescription().indexOf("Time:"));
       } else {
         row += obj.getDescription();
       }
-
-      row += " (" + obj.getParam() + "ms )";
+      row += String.format(" (%.2f sec)", (double) Long.valueOf(obj.getParam()) / 1000);
 
       lvHistory.getItems().add(row);
     });
+
+    double height = lvHistory.getItems().size() * lvHistory.getFixedCellSize() + 80;
+
+    lbLoadAll.setVisible(!showAll);
+
+    paneHistroy.setMaxHeight(height);
+    paneHistroy.setPrefHeight(height);
+    controlExpander.setExpandedHeight(height + 20);
+
+    showAll = false;
   }
 
   @FXML

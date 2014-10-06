@@ -20,7 +20,17 @@
 		</Label>
       <AnchorPane fx:id="paneHistroy" layoutX="40.0" layoutY="120.0" maxHeight="150.0" maxWidth="400.0" minHeight="150.0" minWidth="400.0" style="-fx-background-color: white; -fx-background-radius: 10;">
          <children>
-            <ListView fx:id="lvHistory" style="-fx-background-color: transparent;;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+            <VBox layoutX="10.0" layoutY="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <children>
+                  <Label fx:id="lbTotalTime" alignment="TOP_CENTER" maxHeight="30.0" maxWidth="380.0" minHeight="30.0" minWidth="380.0" text="Label" VBox.vgrow="NEVER">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                  </Label>
+                  <ListView fx:id="lvHistory" fixedCellSize="25.0" mouseTransparent="true" style="-fx-background-color: transparent;;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" VBox.vgrow="ALWAYS" />
+                  <Label fx:id="lbLoadAll" alignment="CENTER" maxHeight="20.0" maxWidth="380.0" minHeight="20.0" minWidth="380.0" text="Load All" VBox.vgrow="NEVER" />
+               </children>
+            </VBox>
          </children>
          <padding>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

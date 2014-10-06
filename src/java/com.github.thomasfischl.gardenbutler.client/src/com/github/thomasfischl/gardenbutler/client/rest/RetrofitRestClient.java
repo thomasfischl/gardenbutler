@@ -5,6 +5,8 @@ import java.util.stream.Collectors;
 
 import retrofit.RestAdapter;
 
+import com.github.thomasfischl.gardenbutler.client.rest.HistoricalActorActionDataDTO.ActorActionDTO;
+
 public class RetrofitRestClient implements IRestClient {
 
   private boolean initialized;
@@ -28,12 +30,18 @@ public class RetrofitRestClient implements IRestClient {
 
   @Override
   public HistoricalActorActionDataDTO getHistroyForPump(String name) {
-    return service.getPumpHistory(name);
+    HistoricalActorActionDataDTO pumpHistory = service.getPumpHistory(name);
+    
+//    for(int i = 0 ; i< 10; i++){
+//      pumpHistory.add(new ActorActionDTO("test", "", "test", 0L, "Hello World", Long.valueOf(i)));
+//    }
+//    
+    return pumpHistory;
   }
 
   @Override
   public void activatePump(String name) {
-    service.activatePump(name, 5000);
+    service.activatePump5000(name);
   }
 
   @Override

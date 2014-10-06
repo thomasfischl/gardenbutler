@@ -15,7 +15,7 @@ public interface SensorService {
   @GET("/rest/pump/{name}/history")
   HistoricalActorActionDataDTO getPumpHistory(@Path("name") String name);
 
-  @POST("/rest/pump/{name}?action=activate&duration=${duration}")
-  void activatePump(@Path("name") String name, @Path("duration") long duration);
+  @POST("/rest/pump/{name}?action=activate&duration=5000")
+  String activatePump5000(@Path("name") String name);
 
 }
